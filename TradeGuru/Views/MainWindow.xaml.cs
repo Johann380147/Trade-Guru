@@ -21,77 +21,70 @@ namespace TradeGuru
     {
         private Boolean AutoScroll = true;
         private static List<ItemList> serializedItemList = new List<ItemList>();
+        private static List<SearchObject> serializedSearchList = new List<SearchObject>();
 
         public MainWindow()
         {
             InitializeComponent();
-            var lst = Serializer.GetSerializedItemList();
-            if (lst != null)
+            var searchList = Serializer.GetSerializedSearchObjectList();
+            var itemList = Serializer.GetSerializedItemList();
+            
+            if (searchList != null)
             {
-                AddItemsToHistory(ItemsPanel, lst);
+                AddToSearchPanel(ActiveSearchesPanel, searchList);
             }
-            StartEvent(ItemsPanel);
+            if (itemList != null)
+            {
+                AddItemsToHistory(ItemsPanel, itemList);
+            }
+            StartEvent(ItemsPanel, serializedSearchList);
         }
 
-        private static async Task StartEvent(StackPanel panel)
+        private static async Task StartEvent(StackPanel panel, List<SearchObject> searchObjects)
         {
-            List<SearchObject> searchObjects = new List<SearchObject> {
-                new SearchObject { url = "https://us.tamrieltradecentre.com/pc/Trade/SearchResult?SearchType=Sell&ItemID=&ItemNamePattern=sorrow&ItemCategory1ID=0&ItemCategory2ID=1&ItemCategory3ID=5&ItemTraitID=&ItemQualityID=&IsChampionPoint=false&LevelMin=&LevelMax=&MasterWritVoucherMin=&MasterWritVoucherMax=&AmountMin=&AmountMax=&PriceMin=&PriceMax=&SortBy=Price&Order=asc",
-                price_min = 0,
-                price_max = 10000,
-                last_seen_max_minutes = 10 },
-
-                 new SearchObject { url = "https://us.tamrieltradecentre.com/pc/Trade/SearchResult?SearchType=Sell&ItemID=&ItemNamePattern=sorrow&ItemCategory1ID=0&ItemCategory2ID=0&ItemCategory3ID=1&ItemTraitID=&ItemQualityID=&IsChampionPoint=false&LevelMin=&LevelMax=&MasterWritVoucherMin=&MasterWritVoucherMax=&AmountMin=&AmountMax=&PriceMin=&PriceMax=&SortBy=Price&Order=asc",
-                price_min = 0,
-                price_max = 100000,
-                last_seen_max_minutes = 1000 }
-            };
-            
-
-
             while (true)
             {
-                ItemList items = null;
-
                 foreach (var obj in searchObjects)
                 {
+                    ItemList items = null;
+
                     await Task.Run(() =>
                     {
-                        items = Scraper.GetItems(obj.url, obj.price_min, obj.price_max, obj.last_seen_max_minutes);
+                        items = Scraper.GetItems(obj.url, obj.last_seen_max_minutes);
                     });
 
-                    if (items != null && items.Count > 0)
+                    if (items == null || items.Count == 0) continue;
+                    
+                    AddItemsToHistory(panel, items);
+
+                    if (items.Count <= 5)
                     {
-                        AddItemsToHistory(panel, items);
+                        var notification = new NotificationWindow(items);
+                        notification.Show();
+                    }
+                    else
+                    {
+                        var index = 0;
+                        var count = 5;
 
-                        if (items.Count <= 5)
+                        for (int i = 0; i < items.Count; i = index)
                         {
-                            var notification = new NotificationWindow(items);
+                            index = i + 5;
+                            if (index > items.Count)
+                                count = index - items.Count - 1;
+
+                            var subset = items.GetRange(i, count);
+                            var notification = new NotificationWindow(subset);
                             notification.Show();
-                        }
-                        else
-                        {
-                            var index = 0;
-                            var count = 5;
 
-                            for (int i = 0; i < items.Count; i = index)
-                            {
-                                index = i + 5;
-                                if (index > items.Count)
-                                    count = index - items.Count - 1;
-
-                                var subset = items.GetRange(i, count);
-                                var notification = new NotificationWindow(subset);
-                                notification.Show();
-
-                                await Task.Delay(TimeSpan.FromSeconds(10.5));
-                            }
+                            await Task.Delay(TimeSpan.FromSeconds(10.5));
                         }
                     }
+                    
                 }
                 
 
-                await Task.Delay(TimeSpan.FromMinutes(1));
+                await Task.Delay(TimeSpan.FromMinutes(3));
             }
         }
 
@@ -153,6 +146,39 @@ namespace TradeGuru
             
         }
 
+        public static void AddToSearchPanel(DockPanel panel, SearchObject obj)
+        {
+            AddToSearchPanel(panel, new List<SearchObject> { obj });
+        }
+
+        public static void AddToSearchPanel(DockPanel panel, List<SearchObject> searchObjects)
+        {
+            serializedSearchList.AddRange(searchObjects);
+            foreach (var obj in searchObjects)
+            {
+                var btn = new Button();
+                btn.Width = 200;
+                btn.Height = 150;
+                btn.Margin = new Thickness(15, 15, 10, 10);
+                btn.Padding = new Thickness(10);
+                btn.VerticalAlignment = VerticalAlignment.Top;
+                btn.VerticalContentAlignment = VerticalAlignment.Top;
+                var content = obj.pattern + "\n" +
+                    SearchAttributeTranslator.GetSearchCategoryText(obj.category1Id, obj.category2Id, obj.category3Id) + "\n" +
+                    (obj.price_min == -1 ? "" : obj.price_min.ToString()) + "~" + (obj.price_max == -1 ? "" : obj.price_max.ToString()) + "\n" +
+                    "Recency: " + obj.last_seen_max_minutes;
+                btn.Content = content;
+                btn.Tag = obj;
+                btn.Click += (sender, e) => 
+                {
+                    var button = sender as Button;
+                    var searchObj = button.Tag as SearchObject;
+                };
+                
+                panel.Children.Add(btn);
+            }
+        }
+
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (e.ExtentHeightChange == 0)
@@ -180,6 +206,33 @@ namespace TradeGuru
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Serializer.SerializeItemList(serializedItemList);
+            Serializer.SerializeSearchObjectList(serializedSearchList);
+        }
+
+        private void AddSearchObjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            Wrappers.Boolean isConfirmed = new Wrappers.Boolean(false);
+            var searchObject = new SearchObject();
+            var addSearchObjectWindow = new AddSearchObject(searchObject, isConfirmed);
+            addSearchObjectWindow.ShowDialog();
+
+            if (isConfirmed.Value)
+            {
+                searchObject.url = UrlBuilder.Build(
+                    searchObject.pattern, searchObject.traitId, searchObject.qualityId,
+                    searchObject.isChampionPoint, searchObject.level_min, searchObject.level_max,
+                    searchObject.voucher_min, searchObject.voucher_max, searchObject.amount_min,
+                    searchObject.amount_max, searchObject.price_min, searchObject.price_max, 
+                    searchObject.category1Id, searchObject.category2Id, searchObject.category3Id);
+                
+                AddToSearchPanel(ActiveSearchesPanel, searchObject);
+            }
+        }
+
+        private void ClearHistoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            ItemsPanel.Children.Clear();
+            serializedItemList.Clear();
         }
     }
     

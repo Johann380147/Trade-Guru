@@ -15,7 +15,7 @@ namespace TradeGuru
     /// </summary>
     public partial class App : Application
     {
-        string filename = "App.txt";
+        //string filename = "App.txt";
 
         public App()
         {

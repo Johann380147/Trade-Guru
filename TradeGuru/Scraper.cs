@@ -10,20 +10,34 @@ namespace TradeGuru
     public static class Scraper
     {
         static ScrapingBrowser _browser = new ScrapingBrowser();
-        public static ItemList GetItems(string url, double price_min, double price_max, int last_seen)
+        public static ItemList GetItems(string url, int last_seen)
         {
+            var count = 0;
             var lstFilteredItems = new ItemList();
-            var lstItems = GetPageDetails(url);
+            ItemList lstItems = GetPageDetails(url);
+
+            if (lstItems == null) return null;
+
             lstFilteredItems.queryDate = lstItems.queryDate;
-            foreach (var item in lstItems)
+            var _last_seen = last_seen == -1 ? 99999 : last_seen;
+
+            while (lstItems != null)
             {
-                if (item.price >= price_min && 
-                    item.price <= price_max && 
-                    item.last_seen <= last_seen)
+                foreach (var item in lstItems)
                 {
-                    lstFilteredItems.Add(item);
+                    if (item.last_seen <= _last_seen)
+                    {
+                        lstFilteredItems.Add(item);
+                    }
                 }
+
+                // Avoid spamming the ttc website
+                if (count < 3)
+                    lstItems = GetPageDetails(UrlBuilder.GetNextPage(url));
+                else
+                    lstItems = null;
             }
+
             return lstFilteredItems;
         }
 
@@ -33,6 +47,8 @@ namespace TradeGuru
             var htmlNode = GetHtml(url);
             var lstItems = new ItemList();
             lstItems.queryDate = String.Format("{0:hh:mm:ss (dd MMM)}", DateTime.Now);
+
+            if (htmlNode.OwnerDocument.DocumentNode.SelectNodes("//tr[@class='cursor-pointer']") == null) return null;
 
             foreach (HtmlAgilityPack.HtmlNode node in htmlNode.OwnerDocument.DocumentNode.SelectNodes("//tr[@class='cursor-pointer']"))
             {

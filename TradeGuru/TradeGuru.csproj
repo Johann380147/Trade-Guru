@@ -70,19 +70,29 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Item.cs" />
-    <Compile Include="ItemList.cs" />
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\AddSearchObject.xaml.cs">
+      <DependentUpon>AddSearchObject.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\Helpers.cs" />
+    <Compile Include="Classes\Item.cs" />
+    <Compile Include="Classes\ItemList.cs" />
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Scraper.cs" />
-    <Compile Include="SearchObject.cs" />
+    <Compile Include="Classes\SearchObject.cs" />
     <Compile Include="Serializer.cs" />
-    <Page Include="MainWindow.xaml">
+    <Compile Include="UrlBuilder.cs" />
+    <Compile Include="Wrappers\Wrappers.cs" />
+    <Page Include="Views\AddSearchObject.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="NotificationWindow.xaml">
+    <Page Include="Views\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NotificationWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -90,7 +100,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NotificationWindow.xaml.cs">
+    <Compile Include="Views\NotificationWindow.xaml.cs">
       <DependentUpon>NotificationWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -122,5 +132,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

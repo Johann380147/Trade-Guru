@@ -41,9 +41,9 @@ namespace TradeGuru
                 else if (item.rarity == Item.Rarity.Purple)
                     run.Foreground = Brushes.Purple;
                 else if (item.rarity == Item.Rarity.Yellow)
-                    run.Foreground = Brushes.Yellow;
+                    run.Foreground = Brushes.Gold;
                 else if (item.rarity == Item.Rarity.Orange)
-                    run.Foreground = Brushes.Orange;
+                    run.Foreground = Brushes.OrangeRed;
 
                 var bold = new Bold(run);
                 itemText.Inlines.Add(bold);
