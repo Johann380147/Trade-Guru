@@ -17,6 +17,7 @@ namespace TradeGuru
         public string trait { get; set; }
         public Rarity rarity { get; set; }
         public string location { get; set; }
+        public int amount { get; set; }
         public double price { get; set; }
         public int last_seen { get; set; }
 

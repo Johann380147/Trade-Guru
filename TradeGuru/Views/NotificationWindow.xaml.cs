@@ -21,6 +21,22 @@ namespace TradeGuru.Views
     /// </summary>
     public partial class NotificationWindow : Window
     {
+        public NotificationWindow(string text)
+        {
+            InitializeComponent();
+
+            var itemText = new TextBlock();
+            itemText.TextWrapping = TextWrapping.Wrap;
+            itemText.Margin = new Thickness(5);
+
+            var run = new Run(text);
+            run.Foreground = Brushes.Red;
+            
+            var bold = new Bold(run);
+            itemText.Inlines.Add(bold);
+            ItemsPanel.Children.Add(itemText);
+        }
+
         public NotificationWindow(List<Item> items)
         {
             InitializeComponent();
@@ -47,7 +63,8 @@ namespace TradeGuru.Views
 
                 var bold = new Bold(run);
                 itemText.Inlines.Add(bold);
-                itemText.Inlines.Add(String.Format("Price: {0:n0}\n", item.price));
+                itemText.Inlines.Add(String.Format("Price: {0:0.##}\n", item.price));
+                itemText.Inlines.Add(String.Format("Amount: {0}x\n", item.amount));
                 itemText.Inlines.Add(item.location + "\n");
                 var last_seen = item.last_seen;
                 if (last_seen == 0)

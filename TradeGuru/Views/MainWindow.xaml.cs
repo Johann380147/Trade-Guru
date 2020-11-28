@@ -84,7 +84,8 @@ namespace TradeGuru.Views
                             await Task.Delay(TimeSpan.FromSeconds(10.5));
                         }
                     }
-                    
+
+                    await Task.Delay(TimeSpan.FromSeconds(10));
                 }
                 
 
@@ -131,7 +132,8 @@ namespace TradeGuru.Views
 
                     var bold = new Bold(run);
                     itemText.Inlines.Add(bold);
-                    itemText.Inlines.Add(String.Format("Price: {0:n0}\n", item.price));
+                    itemText.Inlines.Add(String.Format("Price: {0:0.##}\n", item.price));
+                    itemText.Inlines.Add(String.Format("Amount: {0}x\n", item.amount));
                     itemText.Inlines.Add(item.location + "\n");
 
                     var last_seen = item.last_seen;
@@ -178,69 +180,28 @@ namespace TradeGuru.Views
                 btn.VerticalContentAlignment = VerticalAlignment.Top;
                 btn.Cursor = Cursors.Hand;
 
-                var dockPanel = new DockPanel();
-                var itemName = new TextBlock();
-                var itemPrice = new TextBlock();
-                var itemCategory = new TextBlock();
-                var itemRecency = new TextBlock();
-                DockPanel.SetDock(itemName, Dock.Top);
-                DockPanel.SetDock(itemPrice, Dock.Top);
-                DockPanel.SetDock(itemCategory, Dock.Top);
-                DockPanel.SetDock(itemRecency, Dock.Bottom);
-                itemPrice.FontSize = 13;
-                itemCategory.FontSize = 11;
-                itemPrice.FontStyle = FontStyles.Italic;
-
-                // Item Name
-                var run = new Run(obj.pattern);
-                run.FontSize = 20;
-                
-                if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Normal ||
-                    SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Any_Quality)
-                    run.Foreground = Brushes.Gray;
-                else if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Fine)
-                    run.Foreground = Brushes.Green;
-                else if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Superior)
-                    run.Foreground = Brushes.Blue;
-                else if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Epic)
-                    run.Foreground = Brushes.Purple;
-                else if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Legendary)
-                    run.Foreground = Brushes.Yellow;
-
-                var bold = new Bold(run);
-                itemName.Inlines.Add(bold);
-
-                // Item Price
-                var price_min = obj.price_min.ToText();
-                var price_max = obj.price_max.ToText();
-                itemPrice.Inlines.Add(String.Format("{0} ~ {1}", price_min, price_max));
-
-                // Item Categories
-                itemCategory.Inlines.Add(String.Format("{0}", SearchAttributeTranslator.GetSearchCategoryText(obj.category1Id, obj.category2Id, obj.category3Id)));
-
-                // Item Recency
-                var recency = obj.last_seen_max_minutes.ToText() == String.Empty ? String.Empty : obj.last_seen_max_minutes.ToText() + " min(s)";
-                itemRecency.Inlines.Add(String.Format("Recency: {0}", recency));
+                var dockPanel = FormatSearchObjectContent(obj);
 
                 // Content and event binding
                 border.Child = btn;
-                dockPanel.Children.Add(itemName);
-                dockPanel.Children.Add(itemPrice);
-                dockPanel.Children.Add(itemCategory);
-                dockPanel.Children.Add(itemRecency);
-
                 btn.Content = dockPanel;
                 btn.Tag = obj;
                 btn.Click += (sender, e) => 
                 {
+                    var isConfirmed = new Wrappers.Boolean(false);
                     var isDeleted = new Wrappers.Boolean(false);
                     var button = sender as Button;
                     var searchObj = button.Tag as SearchObject;
-                    var edit = new EditSearchObject(searchObj, isDeleted);
+                    var edit = new EditSearchObject(searchObj, isConfirmed, isDeleted);
                     
                     edit.ShowDialog();
 
-                    if (isDeleted.Value == true)
+                    if (isConfirmed.Value == true)
+                    {
+                        dockPanel = FormatSearchObjectContent(searchObj);
+                        btn.Content = dockPanel;
+                    }
+                    else if (isDeleted.Value == true)
                     {
                         RemoveFromSearchPanel(panel, border, searchObj);
                     }
@@ -256,6 +217,15 @@ namespace TradeGuru.Views
             var bold = new Bold(new Run(queryDate + "\n-------------------------------------------------------------------"));
             text.Inlines.Add(bold);
             text.Inlines.Add(html);
+            if (html.Contains("g-recaptcha"))
+            {
+                var run = new Run("\nCaptcha Activated! Go to website and solve captcha to continue.");
+                run.Foreground = Brushes.Red;
+                bold = new Bold(run);
+                text.Inlines.Add(bold);
+                var noti = new NotificationWindow("Captcha Activated! Go to website and solve captcha to continue.");
+                noti.Show();
+            }
             bold = new Bold(new Run("\n-------------------------------------------------------------------"));
             text.Inlines.Add(bold);
             panel.Children.Add(text);
@@ -351,6 +321,65 @@ namespace TradeGuru.Views
                 rawHtmlScrollViewer.ScrollToVerticalOffset(rawHtmlScrollViewer.ExtentHeight);
             }
         }
+
+        private static DockPanel FormatSearchObjectContent(SearchObject obj)
+        {
+            var dockPanel = new DockPanel();
+            var itemName = new TextBlock();
+            var itemPrice = new TextBlock();
+            var itemCategory = new TextBlock();
+            var itemRecency = new TextBlock();
+            DockPanel.SetDock(itemName, Dock.Top);
+            DockPanel.SetDock(itemPrice, Dock.Top);
+            DockPanel.SetDock(itemCategory, Dock.Top);
+            DockPanel.SetDock(itemRecency, Dock.Bottom);
+            itemPrice.FontSize = 13;
+            itemCategory.FontSize = 11;
+            itemPrice.FontStyle = FontStyles.Italic;
+
+            // Item Name
+            var run = new Run(obj.pattern);
+            run.FontSize = 20;
+            run.Foreground = GetBrushForItemQuality(SearchAttributeTranslator.GetItemQualityText(obj.qualityId));
+
+            var bold = new Bold(run);
+            itemName.Inlines.Add(bold);
+
+            // Item Price
+            var price_min = obj.price_min.ToText();
+            var price_max = obj.price_max.ToText();
+            itemPrice.Inlines.Add(String.Format("{0} ~ {1}", price_min, price_max));
+
+            // Item Categories
+            itemCategory.Inlines.Add(String.Format("{0}", SearchAttributeTranslator.GetSearchCategoryText(obj.category1Id, obj.category2Id, obj.category3Id)));
+
+            // Item Recency
+            var recency = obj.last_seen_max_minutes.ToText() == String.Empty ? String.Empty : obj.last_seen_max_minutes.ToText() + " min(s)";
+            itemRecency.Inlines.Add(String.Format("Recency: {0}", recency));
+
+            dockPanel.Children.Add(itemName);
+            dockPanel.Children.Add(itemPrice);
+            dockPanel.Children.Add(itemCategory);
+            dockPanel.Children.Add(itemRecency);
+
+            return dockPanel;
+        }
+
+        private static Brush GetBrushForItemQuality(SearchAttributeTranslator.Qualities quality)
+        {
+            if (quality == SearchAttributeTranslator.Qualities.Normal ||
+                quality == SearchAttributeTranslator.Qualities.Any_Quality)
+                return Brushes.Gray;
+            else if (quality == SearchAttributeTranslator.Qualities.Fine)
+                return Brushes.Green;
+            else if (quality == SearchAttributeTranslator.Qualities.Superior)
+                return Brushes.Blue;
+            else if (quality == SearchAttributeTranslator.Qualities.Epic)
+                return Brushes.Purple;
+            else if (quality == SearchAttributeTranslator.Qualities.Legendary)
+                return Brushes.Yellow;
+            else
+                return Brushes.Gray;
+        }
     }
-    
 }

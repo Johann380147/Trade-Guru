@@ -93,7 +93,7 @@ namespace TradeGuru
                 {
                     item.rarity = Item.Rarity.Yellow;
                 }
-                else if (rarity == "legendary")
+                else if (rarity == "mythic")
                 {
                     item.rarity = Item.Rarity.Orange;
                 }
@@ -108,9 +108,18 @@ namespace TradeGuru
 
                 var priceNode = node.SelectSingleNode(".//td[@class='gold-amount bold']").InnerText;
                 var price = Regex.Match(priceNode, @"([0-9,.]+)").Value;
+                if (price == String.Empty) continue;
                 item.price = Convert.ToDouble(price);
 
+                var amountNode = node.SelectSingleNode(".//td[@class='gold-amount bold']").SelectNodes("./img");
+                var amount = amountNode[1].NextSibling.InnerText;
+                amount = Regex.Match(amount, @"([0-9]+)").Value;
+                if (amount == String.Empty) continue;
+                item.amount = Convert.ToInt32(amount);
+
                 var lastseen = node.SelectSingleNode("./td[@class='bold hidden-xs']").GetAttributeValue("data-mins-elapsed");
+                lastseen = Regex.Match(lastseen, @"([0-9]+)").Value;
+                if (lastseen == String.Empty) continue;
                 item.last_seen = Convert.ToInt32(lastseen);
 
                 lstItems.Add(item);

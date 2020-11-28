@@ -18,12 +18,14 @@ namespace TradeGuru.Views
     public partial class EditSearchObject : Window
     {
         SearchObject obj;
+        Wrappers.Boolean isConfirmed;
         Wrappers.Boolean isDeleted;
 
-        public EditSearchObject(SearchObject obj, Wrappers.Boolean isDeleted)
+        public EditSearchObject(SearchObject obj, Wrappers.Boolean isConfirmed, Wrappers.Boolean isDeleted)
         {
             InitializeComponent();
             this.obj = obj;
+            this.isConfirmed = isConfirmed;
             this.isDeleted = isDeleted;
 
             Category1ComboBox.ItemsSource = SearchAttributeTranslator.GetDictionaryOfCategory1()?.OrderBy(t => t.Key);
@@ -50,6 +52,7 @@ namespace TradeGuru.Views
             obj.isChampionPoint = ChampionPointCheckBox.IsChecked.HasValue ? ChampionPointCheckBox.IsChecked.Value : true;
             obj.last_seen_max_minutes = LastSeenTextBox.Text.ToNumber();
 
+            isConfirmed.Value = true;
             this.Close();
         }
 
