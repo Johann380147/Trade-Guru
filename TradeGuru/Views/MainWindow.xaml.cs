@@ -198,6 +198,8 @@ namespace TradeGuru.Views
 
                     if (isConfirmed.Value == true)
                     {
+                        searchObj.url = UrlBuilder.Build(searchObj);
+
                         dockPanel = FormatSearchObjectContent(searchObj);
                         btn.Content = dockPanel;
                     }
@@ -276,12 +278,7 @@ namespace TradeGuru.Views
 
             if (isConfirmed.Value)
             {
-                searchObject.url = UrlBuilder.Build(
-                    searchObject.pattern, searchObject.traitId, searchObject.qualityId,
-                    searchObject.isChampionPoint, searchObject.level_min, searchObject.level_max,
-                    searchObject.voucher_min, searchObject.voucher_max, searchObject.amount_min,
-                    searchObject.amount_max, searchObject.price_min, searchObject.price_max, 
-                    searchObject.category1Id, searchObject.category2Id, searchObject.category3Id);
+                searchObject.url = UrlBuilder.Build(searchObject);
                 
                 AddToSearchPanel(ActiveSearchesPanel, searchObject);
             }
@@ -328,10 +325,12 @@ namespace TradeGuru.Views
             var itemName = new TextBlock();
             var itemPrice = new TextBlock();
             var itemCategory = new TextBlock();
+            var itemSortType = new TextBlock();
             var itemRecency = new TextBlock();
             DockPanel.SetDock(itemName, Dock.Top);
             DockPanel.SetDock(itemPrice, Dock.Top);
             DockPanel.SetDock(itemCategory, Dock.Top);
+            DockPanel.SetDock(itemSortType, Dock.Top);
             DockPanel.SetDock(itemRecency, Dock.Bottom);
             itemPrice.FontSize = 13;
             itemCategory.FontSize = 11;
@@ -348,10 +347,13 @@ namespace TradeGuru.Views
             // Item Price
             var price_min = obj.price_min.ToText();
             var price_max = obj.price_max.ToText();
-            itemPrice.Inlines.Add(String.Format("{0} ~ {1}", price_min, price_max));
+            itemPrice.Inlines.Add(String.Format("{0:#,##0.##} ~ {1:#,##0.##}", price_min, price_max));
 
             // Item Categories
             itemCategory.Inlines.Add(String.Format("{0}", SearchAttributeTranslator.GetSearchCategoryText(obj.category1Id, obj.category2Id, obj.category3Id)));
+
+            // Item Sort type
+            itemSortType.Inlines.Add(String.Format("Sort by: {0}", obj.sortType.ToString().CleanString()));
 
             // Item Recency
             var recency = obj.last_seen_max_minutes.ToText() == String.Empty ? String.Empty : obj.last_seen_max_minutes.ToText() + " min(s)";
@@ -360,6 +362,7 @@ namespace TradeGuru.Views
             dockPanel.Children.Add(itemName);
             dockPanel.Children.Add(itemPrice);
             dockPanel.Children.Add(itemCategory);
+            dockPanel.Children.Add(itemSortType);
             dockPanel.Children.Add(itemRecency);
 
             return dockPanel;

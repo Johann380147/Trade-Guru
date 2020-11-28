@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TradeGuru"
         mc:Ignorable="d"
-        Title="Edit Item" Width="480"  Height="650" Loaded="Window_Loaded">
+        Title="Edit Item" Width="480" Loaded="Window_Loaded" ResizeMode="NoResize" SizeToContent="Height">
     <Grid  FocusManager.FocusedElement="{Binding ElementName=SearchTermTextBox}">
         <Border Padding="25">
             <StackPanel>
@@ -40,6 +40,7 @@
                         <Label DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Writ Voucher:</Label>
                         <Label DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Amount:</Label>
                         <Label DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Unit Price:</Label>
+                        <Label DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Sort by:</Label>
                         <Label DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Recency(mins):</Label>
                     </DockPanel>
                     <DockPanel LastChildFill="False" Margin="5">
@@ -63,18 +64,20 @@
                             <Label Margin="10,0,0,0">~</Label>
                             <TextBox x:Name="PriceMaxTextBox" PreviewTextInput="NumberValidationTextBox" Width="100" Margin="10,0,0,0"></TextBox>
                         </DockPanel>
+                        <DockPanel DockPanel.Dock="Top" Height="25" Margin="5">
+                            <RadioButton x:Name="SortTypePriceRadioButton" Margin="10,5,50,5" Checked="SortTypePriceRadioButton_Checked">Price</RadioButton>
+                            <RadioButton x:Name="SortTypeLastSeenRadioButton" Margin="10,5,0,5" Checked="SortTypeLastSeenRadioButton_Checked">Last Seen</RadioButton>
+                        </DockPanel>
                         <DockPanel  DockPanel.Dock="Top" Margin="5">
                             <TextBox x:Name="LastSeenTextBox" PreviewTextInput="NumberValidationTextBox" Width="100" Height="25" Margin="10,0,0,0" HorizontalAlignment="Left"></TextBox>
                         </DockPanel>
                     </DockPanel>
                 </DockPanel>
-                <DockPanel LastChildFill="True" Margin="0, 20">
-                    <Button x:Name="DeleteButton" DockPanel.Dock="Top" Width="70" Height="40" HorizontalAlignment="Left" Margin="0,0,0,15" Click="DeleteButton_Click">Delete</Button>
-                    <Button x:Name="CancelButton" Width="70" Height="40" HorizontalAlignment="Left" Click="CancelButton_Click">Cancel</Button>
-                    <DockPanel HorizontalAlignment="Right">
-                        <Button x:Name="ConfirmButton" Width="70" Height="40" Click="ConfirmButton_Click">Confirm</Button>
-                    </DockPanel>
-                </DockPanel>
+                <WrapPanel Margin="0, 20">
+                    <Button x:Name="CancelButton" Width="70" Height="40" Margin="0,0,90,0" Click="CancelButton_Click">Cancel</Button>
+                    <Button x:Name="DeleteButton" Width="70" Height="40" Margin="0,0,100,0" Click="DeleteButton_Click">Delete</Button>
+                    <Button x:Name="ConfirmButton" Width="70" Height="40" Click="ConfirmButton_Click">Confirm</Button>
+                </WrapPanel>
             </StackPanel>
         </Border>
     </Grid>

@@ -10,50 +10,28 @@ namespace TradeGuru
     {
         const string base_url = "https://us.tamrieltradecentre.com/pc/Trade/SearchResult?SearchType=Sell&";
         
-        public static string Build(string pattern, int traitId, int qualityId, 
-            bool isChampionPoint, int levelMin, int levelMax, 
-            int voucherMin, int voucherMax, 
-            int amountMin, int amountMax,
-            double priceMin, double priceMax, int cat1Id)
-        {
-            return Build(pattern, traitId, qualityId, isChampionPoint, levelMin, levelMax, voucherMin, voucherMax, amountMin, amountMax, priceMin, priceMax, cat1Id, -1);
-        }
-
-        public static string Build(string pattern, int traitId, int qualityId,
-            bool isChampionPoint, int levelMin, int levelMax,
-            int voucherMin, int voucherMax,
-            int amountMin, int amountMax,
-            double priceMin, double priceMax, int cat1Id, int cat2Id)
-        {
-            return Build(pattern, traitId, qualityId, isChampionPoint, levelMin, levelMax, voucherMin, voucherMax, amountMin, amountMax, priceMin, priceMax, cat1Id, cat2Id, -1);
-        }
-
-        public static string Build(string pattern, int traitId, int qualityId,
-            bool isChampionPoint, int levelMin, int levelMax,
-            int voucherMin, int voucherMax,
-            int amountMin, int amountMax,
-            double priceMin, double priceMax, int cat1Id, int cat2Id, int cat3Id)
+        public static string Build(SearchObject obj)
         {
             string target = base_url +
-                            "ItemNamePattern=" + pattern.Replace(" ", "+") + "&" +
-                            "ItemCategory1ID=" + GetIntAttributeString(cat1Id) + "&" +
-                            "ItemCategory2ID=" + GetIntAttributeString(cat2Id) + "&" +
-                            GetCategory3(cat3Id) +
-                            "ItemTraitID=" + GetIntAttributeString(traitId) + "&" +
-                            "ItemQualityID=" + GetIntAttributeString(qualityId) + "&" +
-                            "IsChampionPoint=" + isChampionPoint.ToString() + "&" +
-                            "LevelMin=" + GetIntAttributeString(levelMin) + "&" +
-                            "LevelMax=" + GetIntAttributeString(levelMax) + "&" +
-                            "MasterWritVoucherMin=" + GetIntAttributeString(voucherMin) + "&" +
-                            "MasterWritVoucherMax=" + GetIntAttributeString(voucherMax) + "&" +
-                            "AmountMin=" + GetIntAttributeString(amountMin) + "&" +
-                            "AmountMax=" + GetIntAttributeString(amountMax) + "&" +
-                            "PriceMin=" + GetDoubleAttributeString(priceMin) + "&" +
-                            "PriceMax=" + GetDoubleAttributeString(priceMax) + "&" + 
-                            "SortBy=Price&" +
-                            "Order=asc&" +
+                            "ItemNamePattern=" + obj.pattern.Replace(" ", "+") + "&" +
+                            "ItemCategory1ID=" + GetIntAttributeString(obj.category1Id) + "&" +
+                            "ItemCategory2ID=" + GetIntAttributeString(obj.category2Id) + "&" +
+                            GetCategory3(obj.category3Id) +
+                            "ItemTraitID=" + GetIntAttributeString(obj.traitId) + "&" +
+                            "ItemQualityID=" + GetIntAttributeString(obj.qualityId) + "&" +
+                            "IsChampionPoint=" + obj.isChampionPoint.ToString() + "&" +
+                            "LevelMin=" + GetIntAttributeString(obj.level_min) + "&" +
+                            "LevelMax=" + GetIntAttributeString(obj.level_max) + "&" +
+                            "MasterWritVoucherMin=" + GetIntAttributeString(obj.voucher_min) + "&" +
+                            "MasterWritVoucherMax=" + GetIntAttributeString(obj.voucher_max) + "&" +
+                            "AmountMin=" + GetIntAttributeString(obj.amount_min) + "&" +
+                            "AmountMax=" + GetIntAttributeString(obj.amount_max) + "&" +
+                            "PriceMin=" + GetDoubleAttributeString(obj.price_min) + "&" +
+                            "PriceMax=" + GetDoubleAttributeString(obj.price_max) + "&" + 
+                            (obj.sortType == SearchObject.SortType.Price ? "SortBy=Price&" : "SortBy=LastSeen&") +
+                            (obj.sortType == SearchObject.SortType.Price ? "Order=asc&" : "Order=desc&") +
                             "page=1";
-
+            
             return target;
         }
 

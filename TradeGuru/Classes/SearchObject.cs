@@ -9,6 +9,8 @@ namespace TradeGuru
     [Serializable()]
     public class SearchObject
     {
+        public enum SortType { Price, Last_Seen }
+
         public string url { get; set; }
         public string pattern { get; set; }
         public int category1Id { get; set; } = -1;
@@ -25,6 +27,7 @@ namespace TradeGuru
         public int amount_max { get; set; }
         public double price_min { get; set; }
         public double price_max { get; set; }
+        public SortType sortType { get; set; } = SortType.Price;
         public int last_seen_max_minutes { get; set; }
     }
 

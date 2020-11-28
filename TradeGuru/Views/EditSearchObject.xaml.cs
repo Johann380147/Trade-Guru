@@ -50,6 +50,7 @@ namespace TradeGuru.Views
             obj.price_min = PriceMinTextBox.Text.ToNumber();
             obj.price_max = PriceMaxTextBox.Text.ToNumber();
             obj.isChampionPoint = ChampionPointCheckBox.IsChecked.HasValue ? ChampionPointCheckBox.IsChecked.Value : true;
+            obj.sortType = SortTypePriceRadioButton.IsChecked == true ? SearchObject.SortType.Price : SearchObject.SortType.Last_Seen;
             obj.last_seen_max_minutes = LastSeenTextBox.Text.ToNumber();
 
             isConfirmed.Value = true;
@@ -79,6 +80,11 @@ namespace TradeGuru.Views
             PriceMaxTextBox.Text = obj.price_max.ToText();
             ChampionPointCheckBox.IsChecked = obj.isChampionPoint;
             LastSeenTextBox.Text = obj.last_seen_max_minutes.ToText();
+
+            if (obj.sortType == SearchObject.SortType.Price)
+                SortTypePriceRadioButton.IsChecked = true;
+            else
+                SortTypeLastSeenRadioButton.IsChecked = true;
         }
 
         private void Category1ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -123,6 +129,18 @@ namespace TradeGuru.Views
         {
             isDeleted.Value = true;
             this.Close();
+        }
+
+        private void SortTypePriceRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (SortTypeLastSeenRadioButton != null)
+                SortTypeLastSeenRadioButton.IsChecked = false;
+        }
+
+        private void SortTypeLastSeenRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (SortTypePriceRadioButton != null)
+                SortTypePriceRadioButton.IsChecked = false;
         }
     }
 }
