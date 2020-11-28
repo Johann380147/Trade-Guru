@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace TradeGuru
+namespace TradeGuru.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

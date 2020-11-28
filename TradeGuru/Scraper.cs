@@ -4,24 +4,24 @@ using HtmlAgilityPack;
 using ScrapySharp.Extensions;
 using ScrapySharp.Network;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace TradeGuru
 {
     public static class Scraper
     {
         static ScrapingBrowser _browser = new ScrapingBrowser();
-        public static ItemList GetItems(string url, int last_seen)
+        public static async Task<ItemList> GetItems(string url, int last_seen)
         {
-            var count = 0;
+            var count = 1;
             var lstFilteredItems = new ItemList();
             ItemList lstItems = GetPageDetails(url);
 
-            if (lstItems == null) return null;
-
+            lstFilteredItems.rawHtml = lstItems.rawHtml;
             lstFilteredItems.queryDate = lstItems.queryDate;
             var _last_seen = last_seen == -1 ? 99999 : last_seen;
 
-            while (lstItems != null)
+            while (lstItems != null && lstItems.Count > 0)
             {
                 foreach (var item in lstItems)
                 {
@@ -33,9 +33,17 @@ namespace TradeGuru
 
                 // Avoid spamming the ttc website
                 if (count < 3)
-                    lstItems = GetPageDetails(UrlBuilder.GetNextPage(url));
+                {
+                    var new_url = UrlBuilder.GetNextPage(url);
+                    lstItems = GetPageDetails(new_url);
+                    count++;
+                }
                 else
+                {
                     lstItems = null;
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(5));
             }
 
             return lstFilteredItems;
@@ -46,9 +54,10 @@ namespace TradeGuru
 
             var htmlNode = GetHtml(url);
             var lstItems = new ItemList();
-            lstItems.queryDate = String.Format("{0:hh:mm:ss (dd MMM)}", DateTime.Now);
+            lstItems.queryDate = String.Format("{0:hh:mm:ss tt (dd MMM)}", DateTime.Now);
+            lstItems.rawHtml = htmlNode.OwnerDocument.DocumentNode.OuterHtml;
 
-            if (htmlNode.OwnerDocument.DocumentNode.SelectNodes("//tr[@class='cursor-pointer']") == null) return null;
+            if (htmlNode.OwnerDocument.DocumentNode.SelectNodes("//tr[@class='cursor-pointer']") == null) return lstItems;
 
             foreach (HtmlAgilityPack.HtmlNode node in htmlNode.OwnerDocument.DocumentNode.SelectNodes("//tr[@class='cursor-pointer']"))
             {

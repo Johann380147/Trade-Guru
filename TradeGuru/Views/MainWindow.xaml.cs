@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace TradeGuru
+namespace TradeGuru.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -20,6 +21,7 @@ namespace TradeGuru
     public partial class MainWindow : Window
     {
         private Boolean AutoScroll = true;
+        private Boolean rawHtmlAutoScroll = true;
         private static List<ItemList> serializedItemList = new List<ItemList>();
         private static List<SearchObject> serializedSearchList = new List<SearchObject>();
 
@@ -37,10 +39,10 @@ namespace TradeGuru
             {
                 AddItemsToHistory(ItemsPanel, itemList);
             }
-            StartEvent(ItemsPanel, serializedSearchList);
+            StartEvent(ItemsPanel, RawHtmlPanel, serializedSearchList);
         }
 
-        private static async Task StartEvent(StackPanel panel, List<SearchObject> searchObjects)
+        private static async Task StartEvent(StackPanel historyPanel, StackPanel htmlPanel, List<SearchObject> searchObjects)
         {
             while (true)
             {
@@ -48,19 +50,21 @@ namespace TradeGuru
                 {
                     ItemList items = null;
 
-                    await Task.Run(() =>
+                    await Task.Run(async () =>
                     {
-                        items = Scraper.GetItems(obj.url, obj.last_seen_max_minutes);
+                        items = await Scraper.GetItems(obj.url, obj.last_seen_max_minutes);
                     });
 
-                    if (items == null || items.Count == 0) continue;
+                    AddToRawHtml(htmlPanel, items.rawHtml, items.queryDate);
+                    if (items.Count == 0) continue;
                     
-                    AddItemsToHistory(panel, items);
+                    AddItemsToHistory(historyPanel, items);
 
                     if (items.Count <= 5)
                     {
                         var notification = new NotificationWindow(items);
                         notification.Show();
+                        SystemSounds.Hand.Play();
                     }
                     else
                     {
@@ -84,7 +88,7 @@ namespace TradeGuru
                 }
                 
 
-                await Task.Delay(TimeSpan.FromMinutes(3));
+                await Task.Delay(TimeSpan.FromMinutes(5));
             }
         }
 
@@ -146,37 +150,121 @@ namespace TradeGuru
             
         }
 
-        public static void AddToSearchPanel(DockPanel panel, SearchObject obj)
+        public static void AddToSearchPanel(WrapPanel panel, SearchObject obj)
         {
             AddToSearchPanel(panel, new List<SearchObject> { obj });
         }
 
-        public static void AddToSearchPanel(DockPanel panel, List<SearchObject> searchObjects)
+        public static void AddToSearchPanel(WrapPanel panel, List<SearchObject> searchObjects)
         {
             serializedSearchList.AddRange(searchObjects);
             foreach (var obj in searchObjects)
             {
+                // UI styling
+                var border = new Border();
+                border.BorderThickness = new Thickness(2);
+                border.BorderBrush = Brushes.Gray;
+                border.CornerRadius = new CornerRadius(5);
+                border.Margin = new Thickness(15, 15, 10, 10);
+                border.Height = 150;
+                border.VerticalAlignment = VerticalAlignment.Top;
+
                 var btn = new Button();
+                btn.Background = new SolidColorBrush(Color.FromArgb(5, 0, 0, 0));
+                btn.BorderThickness = new Thickness(0);
                 btn.Width = 200;
                 btn.Height = 150;
-                btn.Margin = new Thickness(15, 15, 10, 10);
                 btn.Padding = new Thickness(10);
-                btn.VerticalAlignment = VerticalAlignment.Top;
                 btn.VerticalContentAlignment = VerticalAlignment.Top;
-                var content = obj.pattern + "\n" +
-                    SearchAttributeTranslator.GetSearchCategoryText(obj.category1Id, obj.category2Id, obj.category3Id) + "\n" +
-                    (obj.price_min == -1 ? "" : obj.price_min.ToString()) + "~" + (obj.price_max == -1 ? "" : obj.price_max.ToString()) + "\n" +
-                    "Recency: " + obj.last_seen_max_minutes;
-                btn.Content = content;
+                btn.Cursor = Cursors.Hand;
+
+                var dockPanel = new DockPanel();
+                var itemName = new TextBlock();
+                var itemPrice = new TextBlock();
+                var itemCategory = new TextBlock();
+                var itemRecency = new TextBlock();
+                DockPanel.SetDock(itemName, Dock.Top);
+                DockPanel.SetDock(itemPrice, Dock.Top);
+                DockPanel.SetDock(itemCategory, Dock.Top);
+                DockPanel.SetDock(itemRecency, Dock.Bottom);
+                itemPrice.FontSize = 13;
+                itemCategory.FontSize = 11;
+                itemPrice.FontStyle = FontStyles.Italic;
+
+                // Item Name
+                var run = new Run(obj.pattern);
+                run.FontSize = 20;
+                
+                if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Normal ||
+                    SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Any_Quality)
+                    run.Foreground = Brushes.Gray;
+                else if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Fine)
+                    run.Foreground = Brushes.Green;
+                else if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Superior)
+                    run.Foreground = Brushes.Blue;
+                else if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Epic)
+                    run.Foreground = Brushes.Purple;
+                else if (SearchAttributeTranslator.GetItemQualityText(obj.qualityId) == SearchAttributeTranslator.Qualities.Legendary)
+                    run.Foreground = Brushes.Yellow;
+
+                var bold = new Bold(run);
+                itemName.Inlines.Add(bold);
+
+                // Item Price
+                var price_min = obj.price_min.ToText();
+                var price_max = obj.price_max.ToText();
+                itemPrice.Inlines.Add(String.Format("{0} ~ {1}", price_min, price_max));
+
+                // Item Categories
+                itemCategory.Inlines.Add(String.Format("{0}", SearchAttributeTranslator.GetSearchCategoryText(obj.category1Id, obj.category2Id, obj.category3Id)));
+
+                // Item Recency
+                var recency = obj.last_seen_max_minutes.ToText() == String.Empty ? String.Empty : obj.last_seen_max_minutes.ToText() + " min(s)";
+                itemRecency.Inlines.Add(String.Format("Recency: {0}", recency));
+
+                // Content and event binding
+                border.Child = btn;
+                dockPanel.Children.Add(itemName);
+                dockPanel.Children.Add(itemPrice);
+                dockPanel.Children.Add(itemCategory);
+                dockPanel.Children.Add(itemRecency);
+
+                btn.Content = dockPanel;
                 btn.Tag = obj;
                 btn.Click += (sender, e) => 
                 {
+                    var isDeleted = new Wrappers.Boolean(false);
                     var button = sender as Button;
                     var searchObj = button.Tag as SearchObject;
+                    var edit = new EditSearchObject(searchObj, isDeleted);
+                    
+                    edit.ShowDialog();
+
+                    if (isDeleted.Value == true)
+                    {
+                        RemoveFromSearchPanel(panel, border, searchObj);
+                    }
                 };
                 
-                panel.Children.Add(btn);
+                panel.Children.Add(border);
             }
+        }
+
+        public static void AddToRawHtml(StackPanel panel, string html, string queryDate)
+        {
+            var text = new TextBlock();
+            var bold = new Bold(new Run(queryDate + "\n-------------------------------------------------------------------"));
+            text.Inlines.Add(bold);
+            text.Inlines.Add(html);
+            bold = new Bold(new Run("\n-------------------------------------------------------------------"));
+            text.Inlines.Add(bold);
+            panel.Children.Add(text);
+        }
+
+        public static void RemoveFromSearchPanel(WrapPanel panel, Border button, SearchObject obj)
+        {
+            panel.Children.Remove(button);
+            serializedSearchList.Remove(obj);
         }
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -233,6 +321,35 @@ namespace TradeGuru
         {
             ItemsPanel.Children.Clear();
             serializedItemList.Clear();
+        }
+
+        private void ClearRawHtmlButton_Click(object sender, RoutedEventArgs e)
+        {
+            RawHtmlPanel.Children.Clear();
+        }
+
+        private void RawHtmlScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (e.ExtentHeightChange == 0)
+            {   // Content unchanged : user scroll event
+                if (rawHtmlScrollViewer.VerticalOffset == rawHtmlScrollViewer.ScrollableHeight)
+                {   // Scroll bar is in bottom
+                    // Set auto-scroll mode
+                    rawHtmlAutoScroll = true;
+                }
+                else
+                {   // Scroll bar isn't in bottom
+                    // Unset auto-scroll mode
+                    rawHtmlAutoScroll = false;
+                }
+            }
+
+            // Content scroll event : auto-scroll eventually
+            if (rawHtmlAutoScroll && e.ExtentHeightChange != 0)
+            {   // Content changed and auto-scroll mode set
+                // Autoscroll
+                rawHtmlScrollViewer.ScrollToVerticalOffset(rawHtmlScrollViewer.ExtentHeight);
+            }
         }
     }
     

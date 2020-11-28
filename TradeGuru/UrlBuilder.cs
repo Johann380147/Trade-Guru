@@ -71,6 +71,7 @@ namespace TradeGuru
                         pageNum = url.Substring(index + 5).ToNumber() + 1;
                         if (pageNum != -1)
                         {
+                            newUrl = newUrl.Remove(index + 5);
                             newUrl = newUrl.Insert(index + 5, pageNum.ToString());
                         }
                         else

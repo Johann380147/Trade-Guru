@@ -15,19 +15,16 @@ using System.Text.RegularExpressions;
 
 namespace TradeGuru.Views
 {
-    /// <summary>
-    /// Interaction logic for AddSearchObject.xaml
-    /// </summary>
-    public partial class AddSearchObject : Window
+    public partial class EditSearchObject : Window
     {
         SearchObject obj;
-        Wrappers.Boolean isConfirmed;
+        Wrappers.Boolean isDeleted;
 
-        public AddSearchObject(SearchObject obj, Wrappers.Boolean isConfirmed)
+        public EditSearchObject(SearchObject obj, Wrappers.Boolean isDeleted)
         {
             InitializeComponent();
             this.obj = obj;
-            this.isConfirmed = isConfirmed;
+            this.isDeleted = isDeleted;
 
             Category1ComboBox.ItemsSource = SearchAttributeTranslator.GetDictionaryOfCategory1()?.OrderBy(t => t.Key);
             TraitComboBox.ItemsSource = SearchAttributeTranslator.GetDictionaryOfTraits()?.OrderBy(t => t.Value);
@@ -50,30 +47,35 @@ namespace TradeGuru.Views
             obj.amount_max = AmountMaxTextBox.Text.ToNumber();
             obj.price_min = PriceMinTextBox.Text.ToNumber();
             obj.price_max = PriceMaxTextBox.Text.ToNumber();
-            obj.isChampionPoint = ChampionPointCheckBox.IsChecked.HasValue ? ChampionPointCheckBox.IsChecked.Value : true ;
+            obj.isChampionPoint = ChampionPointCheckBox.IsChecked.HasValue ? ChampionPointCheckBox.IsChecked.Value : true;
             obj.last_seen_max_minutes = LastSeenTextBox.Text.ToNumber();
-
-            isConfirmed.Value = true;
 
             this.Close();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            isConfirmed.Value = false;
-
             this.Close();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Category2ComboBox.Visibility = Visibility.Collapsed;
-            Category3ComboBox.Visibility = Visibility.Collapsed;
-            Category1ComboBox.SelectedIndex = 0;
-            Category2ComboBox.SelectedIndex = 0;
-            Category3ComboBox.SelectedIndex = 0;
-            TraitComboBox.SelectedIndex = 0;
-            QualityComboBox.SelectedIndex = 0;
+            SearchTermTextBox.Text = obj.pattern;
+            Category1ComboBox.SelectedValue = obj.category1Id;
+            Category2ComboBox.SelectedValue = obj.category2Id;
+            Category3ComboBox.SelectedValue = obj.category3Id;
+            TraitComboBox.SelectedValue = obj.traitId;
+            QualityComboBox.SelectedValue = obj.qualityId;
+            LevelMinTextBox.Text = obj.level_min.ToText();
+            LevelMaxTextBox.Text = obj.level_max.ToText();
+            VoucherMinTextBox.Text = obj.voucher_min.ToText();
+            VoucherMaxTextBox.Text = obj.voucher_max.ToText();
+            AmountMinTextBox.Text = obj.amount_min.ToText();
+            AmountMaxTextBox.Text = obj.amount_max.ToText();
+            PriceMinTextBox.Text = obj.price_min.ToText();
+            PriceMaxTextBox.Text = obj.price_max.ToText();
+            ChampionPointCheckBox.IsChecked = obj.isChampionPoint;
+            LastSeenTextBox.Text = obj.last_seen_max_minutes.ToText();
         }
 
         private void Category1ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -113,5 +115,11 @@ namespace TradeGuru.Views
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
         }
-}
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            isDeleted.Value = true;
+            this.Close();
+        }
+    }
 }

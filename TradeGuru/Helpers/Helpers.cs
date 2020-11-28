@@ -47,5 +47,30 @@ namespace TradeGuru
                 return Convert.ToInt32(str.Replace("&", ""));
             }
         }
+
+        
+        public static string ToText(this int num)
+        {
+            if (num == -1)
+            {
+                return String.Empty;
+            }
+            else
+            {
+                return num.ToString();
+            }
+        }
+
+        public static string ToText(this double num)
+        {
+            if (num == -1)
+            {
+                return String.Empty;
+            }
+            else
+            {
+                return num.ToString();
+            }
+        }
     }
 }

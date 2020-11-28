@@ -10,5 +10,6 @@ namespace TradeGuru
     public class ItemList : List<Item>
     {
         public string queryDate { get; set; }
+        public string rawHtml { get; set; }
     }
 }

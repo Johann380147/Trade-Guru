@@ -35,7 +35,7 @@ namespace TradeGuru
             Invigorating = 12, Nirnhorned = 14, Ornate = 16, Powered = 0, Precise = 2, Protective = 23, 
             Reinforced = 10, Robust = 19, Sharpened = 6, Special = 20, Sturdy = 8, Swift = 24, Training = 5,
             Triune = 25, Well_Fitted = 11 }
-        enum Qualities { Any_Quality = -1, Normal = 0, Fine = 1, Superior = 2, Epic = 3, Legendary = 4 }
+        public enum Qualities { Any_Quality = -1, Normal = 0, Fine = 1, Superior = 2, Epic = 3, Legendary = 4 }
 
         static class ItemCategory
         {
@@ -318,6 +318,11 @@ namespace TradeGuru
         public static Dictionary<int, string> GetDictionaryOfQualities()
         {
             return Helpers.EnumDictionary<Qualities>();
+        }
+
+        public static Qualities GetItemQualityText(int qualityId)
+        {
+            return (Qualities)qualityId;
         }
 
         public static string GetSearchCategoryText(int category1, int category2, int category3)
