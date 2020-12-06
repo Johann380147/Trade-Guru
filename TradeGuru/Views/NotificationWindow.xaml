@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   Title="Notification Popup" Width="300" SizeToContent="Height"
   WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-    Loaded="Window_Loaded" ShowInTaskbar="False" ResizeMode="NoResize" IsEnabled="False" ShowActivated="False">
+    Loaded="Window_Loaded" ResizeMode="NoResize" ShowActivated="False" ShowInTaskbar="False" Topmost="True">
 
     <Grid RenderTransformOrigin="0,1" >
 

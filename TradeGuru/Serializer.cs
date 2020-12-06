@@ -10,8 +10,8 @@ namespace TradeGuru
 {
     public static class Serializer
     {
-        private const string ItemFileName = @"../../../SavedResults.bin";
-        private const string SearchObjFileName = @"../../../SavedSearches.bin";
+        private const string ItemFileName = @"../../../../SavedResults.bin";
+        private const string SearchObjFileName = @"../../../../SavedSearches.bin";
 
         public static void SerializeSearchObjectList(List<SearchObject> lst)
         {

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradeGuru
 {
@@ -38,6 +36,16 @@ namespace TradeGuru
             return str.Replace("_", " ");
         }
 
+        public static string UncleanString(this string str)
+        {
+            return str.Replace(" ", "_");
+        }
+
+        public static Type GetType(this string typeName)
+        {
+            return Type.GetType(typeName);
+        }
+
         public static int ToNumber(this string str)
         {
             if (str == String.Empty)
@@ -49,7 +57,7 @@ namespace TradeGuru
         }
 
         
-        public static string ToText(this int num)
+        public static string ToText(this int num, bool addThousandthSeparator = false)
         {
             if (num == -1)
             {
@@ -57,11 +65,18 @@ namespace TradeGuru
             }
             else
             {
-                return num.ToString();
+                if (addThousandthSeparator == true)
+                {
+                    return String.Format("{0:#,##0.##}", num);
+                }
+                else
+                {
+                    return num.ToString();
+                }
             }
         }
 
-        public static string ToText(this double num)
+        public static string ToText(this double num, bool addThousandthSeparator = false)
         {
             if (num == -1)
             {
@@ -69,7 +84,14 @@ namespace TradeGuru
             }
             else
             {
-                return num.ToString();
+                if (addThousandthSeparator == true)
+                {
+                    return String.Format("{0:#,##0.##}", num);
+                }
+                else
+                {
+                    return num.ToString();
+                }
             }
         }
     }

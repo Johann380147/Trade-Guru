@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using ScrapySharp.Extensions;
 using ScrapySharp.Network;
+using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -11,7 +10,7 @@ namespace TradeGuru
     public static class Scraper
     {
         static ScrapingBrowser _browser = new ScrapingBrowser();
-        public static async Task<ItemList> GetItems(string url, int last_seen)
+        public static async Task<ItemList> GetItems(string url, int last_seen, int seconds)
         {
             var count = 1;
             var lstFilteredItems = new ItemList();
@@ -43,13 +42,13 @@ namespace TradeGuru
                     lstItems = null;
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(seconds));
             }
 
             return lstFilteredItems;
         }
 
-        static ItemList GetPageDetails(string url)
+        private static ItemList GetPageDetails(string url)
         {
 
             var htmlNode = GetHtml(url);
@@ -75,27 +74,27 @@ namespace TradeGuru
 
                 if (rarity == "normal")
                 {
-                    item.rarity = Item.Rarity.White;
+                    item.quality = Item.Quality.Normal;
                 }
                 else if (rarity == "fine")
                 {
-                    item.rarity = Item.Rarity.Green;
+                    item.quality = Item.Quality.Fine;
                 }
                 else if (rarity == "superior")
                 {
-                    item.rarity = Item.Rarity.Blue;
+                    item.quality = Item.Quality.Superior;
                 }
                 else if (rarity == "epic")
                 {
-                    item.rarity = Item.Rarity.Purple;
+                    item.quality = Item.Quality.Epic;
                 }
                 else if (rarity == "legendary")
                 {
-                    item.rarity = Item.Rarity.Yellow;
+                    item.quality = Item.Quality.Legendary;
                 }
                 else if (rarity == "mythic")
                 {
-                    item.rarity = Item.Rarity.Orange;
+                    item.quality = Item.Quality.Mythic;
                 }
 
                 var locationNodes = node.SelectNodes(".//td[@class='hidden-xs']")[1].SelectNodes("./div");
@@ -128,7 +127,7 @@ namespace TradeGuru
             return lstItems;
         }
 
-        static HtmlNode GetHtml(string url)
+        private static HtmlNode GetHtml(string url)
         {
             WebPage webpage = _browser.NavigateToPage(new Uri(url));
             return webpage.Html;

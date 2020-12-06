@@ -27,7 +27,7 @@
 
                 <ComboBox x:Name="Category1ComboBox" SelectedValuePath="Key" DisplayMemberPath="Value" Height="25" Margin="0,10,0,10" SelectionChanged="Category1ComboBox_SelectionChanged"></ComboBox>
                 <ComboBox x:Name="Category2ComboBox" SelectedValuePath="Key" DisplayMemberPath="Value" Height="25" Margin="0,10,0,10" SelectionChanged="Category2ComboBox_SelectionChanged"></ComboBox>
-                <ComboBox x:Name="Category3ComboBox" SelectedValuePath="Key" DisplayMemberPath="Value" Height="25" Margin="0,10,0,10"></ComboBox>
+                <ComboBox x:Name="Category3ComboBox" SelectedValuePath="Key" DisplayMemberPath="Value" Height="25" Margin="0,10,0,10" SelectionChanged="Category3ComboBox_SelectionChanged"></ComboBox>
                 <ComboBox x:Name="TraitComboBox" SelectedValuePath="Key" DisplayMemberPath="Value" Height="25" Margin="0,10,0,10"></ComboBox>
                 <ComboBox x:Name="QualityComboBox" SelectedValuePath="Key" DisplayMemberPath="Value" Height="25" Margin="0,10,0,10"></ComboBox>
                 <DockPanel>
@@ -37,7 +37,7 @@
                             <CheckBox x:Name="ChampionPointCheckBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="auto" ToolTip="Champion Point" IsChecked="True"></CheckBox>
                         </DockPanel>
                         
-                        <Label DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Writ Voucher:</Label>
+                        <Label x:Name="VoucherLabel" DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Writ Voucher:</Label>
                         <Label DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Amount:</Label>
                         <Label DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Unit Price:</Label>
                         <Label DockPanel.Dock="Top" Height="35" Margin="10,0,0,0" VerticalContentAlignment="Center">Sort by:</Label>
@@ -49,7 +49,7 @@
                             <Label Margin="10,0,0,0">~</Label>
                             <TextBox x:Name="LevelMaxTextBox" PreviewTextInput="NumberValidationTextBox" Width="100" Margin="10,0,0,0"></TextBox>
                         </DockPanel>
-                        <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="5">
+                        <DockPanel x:Name="VoucherContainer" DockPanel.Dock="Top" LastChildFill="False" Margin="5">
                             <TextBox x:Name="VoucherMinTextBox" PreviewTextInput="NumberValidationTextBox" Width="100" Margin="10,0,0,0"></TextBox>
                             <Label Margin="10,0,0,0">~</Label>
                             <TextBox x:Name="VoucherMaxTextBox" PreviewTextInput="NumberValidationTextBox" Width="100" Margin="10,0,0,0"></TextBox>

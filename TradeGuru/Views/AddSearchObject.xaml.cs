@@ -89,6 +89,21 @@ namespace TradeGuru.Views
             else
             {
                 Category2ComboBox.Visibility = Visibility.Collapsed;
+                Category3ComboBox.Visibility = Visibility.Collapsed;
+            }
+            
+            TraitComboBox.Visibility = SearchAttributeTranslator.HasTrait(((KeyValuePair<int, string>)e.AddedItems[0]).Value,
+                                                                          Category2ComboBox.Text,
+                                                                          Category3ComboBox.Text) ? Visibility.Visible : Visibility.Collapsed;
+            if (TraitComboBox.Visibility == Visibility.Collapsed)
+            {
+                TraitComboBox.SelectedIndex = 0;
+            }
+
+            if (cat1 == -1) // All Items
+            {
+                VoucherLabel.Visibility = Visibility.Visible;
+                VoucherContainer.Visibility = Visibility.Visible;
             }
         }
 
@@ -99,14 +114,42 @@ namespace TradeGuru.Views
             if (cat1.HasValue && cat2.HasValue)
             {
                 Category3ComboBox.ItemsSource = SearchAttributeTranslator.GetDictionaryOfCategory3(cat1.Value, cat2.Value)?.OrderBy(t => t.Key);
-                Category3ComboBox.Visibility = Visibility.Visible;
-                Category3ComboBox.SelectedIndex = 0;
+                if (Category3ComboBox.ItemsSource != null)
+                {
+                    Category3ComboBox.Visibility = Visibility.Visible;
+                    Category3ComboBox.SelectedIndex = 0;
+                }
+                else
+                {
+                    Category3ComboBox.Visibility = Visibility.Collapsed;
+                }
+                TraitComboBox.Visibility = SearchAttributeTranslator.HasTrait(Category1ComboBox.Text,
+                                                                          ((KeyValuePair<int, string>)e.AddedItems[0]).Value,
+                                                                          Category3ComboBox.Text) ? Visibility.Visible : Visibility.Collapsed;
+                if (TraitComboBox.Visibility == Visibility.Collapsed)
+                {
+                    TraitComboBox.SelectedIndex = 0;
+                }
+
+                if (cat2 == 39) // Master Writ
+                {
+                    VoucherLabel.Visibility = Visibility.Visible;
+                    VoucherContainer.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    VoucherLabel.Visibility = Visibility.Collapsed;
+                    VoucherContainer.Visibility = Visibility.Collapsed;
+                    VoucherMinTextBox.Text = String.Empty;
+                    VoucherMaxTextBox.Text = String.Empty;
+                }
             }
-            else
-            {
-                Category3ComboBox.ItemsSource = null;
-                Category3ComboBox.Visibility = Visibility.Collapsed;
-            }
+            
+        }
+
+        private void Category3ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            
         }
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
