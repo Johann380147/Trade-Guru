@@ -1,52 +1,93 @@
-﻿using System.Windows.Controls;
+﻿using System.Collections.Generic;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using TradeGuru.Classes;
+using TradeGuru.Views;
 
 namespace TradeGuru.Managers
 {
     public class DebugManager
     {
-        private StackPanel panel { get; set; }
+        private static DebugManager debugManager { get; set; }
+        private DebugUserControl control { get; set; }
+        private List<Log> LogList { get; set; }
 
-        public DebugManager(StackPanel panel)
+        private DebugManager(DebugUserControl control)
         {
-            this.panel = panel;
+            this.control = control;
+            this.LogList = new List<Log>();
+
+            var logList = Serializer.DeserializeObjectList<Log>(SettingsManager.CurrentSetting.LogFileLocation);
+            if (logList != null)
+            {
+                AddRawHtml(logList, true);
+            }
         }
 
-        public bool AddRawHtml(string html, string queryDate, string queryName)
+        public static DebugManager Create(DebugUserControl control)
         {
+            debugManager = debugManager ?? new DebugManager(control);
+            return debugManager;
+        }
+
+        public bool AddRawHtml(Log log, bool suppressCaptchaWarning = false)
+        {
+            return AddRawHtml(new List<Log> { log }, suppressCaptchaWarning);
+        }
+
+        public bool AddRawHtml(List<Log> logList, bool suppressCaptchaWarning = false)
+        {
+            LogList.AddRange(logList);
             bool isCaptchaActivated = false;
 
-            var queryText = new TextBlock();
-            var run = new Run(queryName + " - " + queryDate);
-            var bold = new Bold(run);
-            queryText.Inlines.Add(bold);
-
-            if (html.Contains("g-recaptcha"))
+            foreach (var log in logList)
             {
-                run = new Run("\nCaptcha Activated! Go to website and solve captcha to continue.");
-                run.Foreground = Brushes.Red;
-                bold = new Bold(run);
+                string queryName = log.queryName;
+                string queryDate = log.queryDate;
+                string html = log.html;
+
+                var queryText = new TextBlock();
+                var run = new Run(queryName + " - " + queryDate);
+                var bold = new Bold(run);
                 queryText.Inlines.Add(bold);
 
-                isCaptchaActivated = true;
+                if (html.Contains("g-recaptcha"))
+                {
+                    run = new Run("\nCaptcha Activated! Go to website and solve captcha to continue.");
+                    run.Foreground = Brushes.Red;
+                    bold = new Bold(run);
+                    queryText.Inlines.Add(bold);
+
+                    isCaptchaActivated = true;
+                }
+
+                Expander expander = new Expander();
+                expander.Header = queryText;
+                var content = new TextBlock();
+                content.Inlines.Add(html);
+                content.Cursor = Cursors.Hand;
+                content.MouseLeftButtonUp += (sender, e) =>
+                {
+                    expander.IsExpanded = !expander.IsExpanded;
+                };
+                expander.Content = content;
+
+                control.Panel.Children.Add(expander);
             }
-
-            Expander expander = new Expander();
-            expander.Header = queryText;
-            var content = new TextBlock();
-            content.Inlines.Add(html);
-            content.Cursor = Cursors.Hand;
-            content.MouseLeftButtonUp += (sender, e) =>
-            {
-                expander.IsExpanded = !expander.IsExpanded;
-            };
-            expander.Content = content;
             
-            panel.Children.Add(expander);
+            return suppressCaptchaWarning == true ? false : isCaptchaActivated;
+        }
 
-            return isCaptchaActivated;
+        public void SaveLog()
+        {
+            Serializer.SerializeObjectList(SettingsManager.CurrentSetting.LogFileLocation, LogList);
+        }
+
+        public void ClearLog()
+        {
+            LogList.Clear();
         }
     }
 }

@@ -11,19 +11,28 @@ namespace TradeGuru.Managers
 {
     public class SearchManager
     {
-        private WrapPanel panel { get; set; }
-        public List<SearchObject> serializedSearchList { get; set; }
+        private static SearchManager searchManager { get; set; }
 
-        public SearchManager(WrapPanel panel)
+        private SearchUserControl control { get; set; }
+        public List<SearchObject> SearchList { get; private set; }
+
+        private SearchManager(SearchUserControl control, Wrappers.Boolean isCaptchaActivated)
         {
-            this.panel = panel;
-            this.serializedSearchList = new List<SearchObject>();
+            this.control = control;
+            control.Initialize(isCaptchaActivated);
+            this.SearchList = new List<SearchObject>();
 
-            var searchList = Serializer.GetSerializedSearchObjectList();
+            var searchList = Serializer.DeserializeObjectList<SearchObject>(SettingsManager.CurrentSetting.SearchFileLocation);
             if (searchList != null)
             {
                 AddObject(searchList);
             }
+        }
+        
+        public static SearchManager Create(SearchUserControl control, Wrappers.Boolean isCaptchaActivated)
+        {
+            searchManager = searchManager ?? new SearchManager(control, isCaptchaActivated);
+            return searchManager;
         }
 
         public void AddObject(SearchObject obj)
@@ -33,7 +42,7 @@ namespace TradeGuru.Managers
 
         public void AddObject(List<SearchObject> searchObjects)
         {
-            serializedSearchList.AddRange(searchObjects);
+            SearchList.AddRange(searchObjects);
 
             foreach (var obj in searchObjects)
             {
@@ -84,14 +93,19 @@ namespace TradeGuru.Managers
                     }
                 };
 
-                panel.Children.Add(border);
+                control.Panel.Children.Add(border);
             }
         }
 
         public virtual void RemoveObject(Border button, SearchObject obj)
         {
-            serializedSearchList.Remove(obj);
-            panel.Children.Remove(button);
+            SearchList.Remove(obj);
+            control.Panel.Children.Remove(button);
+        }
+
+        public void SaveActiveSearches()
+        {
+            Serializer.SerializeObjectList(SettingsManager.CurrentSetting.SearchFileLocation, SearchList);
         }
 
         private DockPanel FormatSearchObjectContent(SearchObject obj)
@@ -160,6 +174,11 @@ namespace TradeGuru.Managers
             dockPanel.Children.Add(itemRecency);
 
             return dockPanel;
+        }
+
+        public void ToggleContinueButton(bool value)
+        {
+            control.ToggleContinueButton(value);
         }
     }
 }

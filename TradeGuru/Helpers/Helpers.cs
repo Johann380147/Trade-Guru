@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 
 namespace TradeGuru
 {
@@ -56,7 +57,17 @@ namespace TradeGuru
             }
         }
 
-        
+        public static double ToDouble(this string str)
+        {
+            if (str == String.Empty)
+                return 1;
+            else
+            {
+                var num = Convert.ToDouble(str);
+                return num < 1 ? 1 : num;
+            }
+        }
+
         public static string ToText(this int num, bool addThousandthSeparator = false)
         {
             if (num == -1)
@@ -92,6 +103,14 @@ namespace TradeGuru
                 {
                     return num.ToString();
                 }
+            }
+        }
+
+        public static System.Drawing.Icon GetIconFromUri(Uri uri)
+        {
+            using (var stream = Application.GetResourceStream(uri).Stream)
+            {
+                return new System.Drawing.Icon(stream);
             }
         }
     }

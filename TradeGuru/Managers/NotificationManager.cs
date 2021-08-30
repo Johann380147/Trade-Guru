@@ -36,6 +36,10 @@ namespace TradeGuru.Managers
 
             PlayNotificationSound();
             FlashTaskbarIcon();
+            if (window.isBrowserTabSelected() == false || window.IsVisible == false)
+            {
+                window.SetNotifyIcon();
+            }
         }
 
         public void ShowDesktopNotification(ItemList items)
@@ -46,9 +50,6 @@ namespace TradeGuru.Managers
                 notification.Cursor = Cursors.Hand;
                 notification.MouseLeftButtonUp += ShowHistoryTab;
                 notification.Show();
-
-                SystemSounds.Hand.Play();
-                FlashTaskbarIcon();
             }
             else
             {
@@ -59,9 +60,12 @@ namespace TradeGuru.Managers
                 notification.Closed += DesktopNotification_Closed;
                 notification.MouseLeftButtonUp += ShowHistoryTab;
                 notification.Show();
-                
-                PlayNotificationSound();
-                FlashTaskbarIcon();
+            }
+            PlayNotificationSound();
+            FlashTaskbarIcon();
+            if (window.isHistoryTabSelected() == false || window.IsVisible == false )
+            {
+                window.SetNotifyIcon();
             }
         }
 
@@ -99,18 +103,21 @@ namespace TradeGuru.Managers
         private void ShowHistoryTab(object sender, EventArgs e)
         {
             ShowTab(window.HistoryTab);
+            window.HideIcon();
         }
 
         private void ShowBrowserTab(object sender, EventArgs e)
         {
             ShowTab(window.BrowserTab);
+            window.HideIcon();
         }
 
         private void ShowTab(TabItem tabItem)
         {
-            window.Show();
-            window.WindowState = WindowState.Normal;
             Dispatcher.CurrentDispatcher.BeginInvoke((Action)(() => window.MainTab.SelectedItem = tabItem));
+            window.Activate();
+            window.Topmost = true;
+            window.Topmost = false;
         }
     }
 }

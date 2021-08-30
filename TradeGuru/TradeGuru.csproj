@@ -107,7 +107,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Classes\Log.cs" />
+    <Compile Include="Classes\Setting.cs" />
+    <Compile Include="Managers\ApplicationManager.cs" />
     <Compile Include="Managers\DebugManager.cs" />
+    <Compile Include="Managers\FileManager.cs" />
     <Compile Include="Managers\HistoryManager.cs" />
     <Compile Include="Managers\NotificationManager.cs" />
     <Compile Include="Managers\SearchManager.cs" />
@@ -118,8 +122,14 @@
     <Compile Include="Helpers\Helpers.cs" />
     <Compile Include="Classes\Item.cs" />
     <Compile Include="Classes\ItemList.cs" />
+    <Compile Include="Views\DebugUserControl.xaml.cs">
+      <DependentUpon>DebugUserControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\EditSearchObject.xaml.cs">
       <DependentUpon>EditSearchObject.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HistoryUserControl.xaml.cs">
+      <DependentUpon>HistoryUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -128,12 +138,30 @@
     <Compile Include="Classes\SearchObject.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="UrlBuilder.cs" />
+    <Compile Include="Views\SearchUserControl.xaml.cs">
+      <DependentUpon>SearchUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsUserControl.xaml.cs">
+      <DependentUpon>SettingsUserControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Wrappers\Wrappers.cs" />
+    <Page Include="Resources\Dictionary\UserControlDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AddSearchObject.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\DebugUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\EditSearchObject.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HistoryUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -153,6 +181,14 @@
       <DependentUpon>NotificationWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\SearchUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -187,7 +223,11 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Controls\" />
     <Folder Include="Resources\Images\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\scales_notify.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

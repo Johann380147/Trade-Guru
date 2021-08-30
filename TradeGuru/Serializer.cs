@@ -1,60 +1,94 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TradeGuru
 {
     public static class Serializer
     {
-        private const string ItemFileName = @"../../../../SavedResults.bin";
-        private const string SearchObjFileName = @"../../../../SavedSearches.bin";
-
-        public static void SerializeSearchObjectList(List<SearchObject> lst)
+        public static void SerializeObject<T>(string fileName, T lst)
         {
-            Stream SaveFileStream = File.Create(SearchObjFileName);
+            Stream fileStream = File.Create(fileName);
             BinaryFormatter serializer = new BinaryFormatter();
-            serializer.Serialize(SaveFileStream, lst);
-            SaveFileStream.Close();
+            serializer.Serialize(fileStream, lst);
+            fileStream.Close();
         }
 
-        public static void SerializeItemList(List<ItemList> lst)
+        public static T DeserializeObject<T>(string fileName)
         {
-            Stream SaveFileStream = File.Create(ItemFileName);
-            BinaryFormatter serializer = new BinaryFormatter();
-            serializer.Serialize(SaveFileStream, lst);
-            SaveFileStream.Close();
-        }
-
-        public static List<SearchObject> GetSerializedSearchObjectList()
-        {
-            if (File.Exists(SearchObjFileName))
+            if (File.Exists(fileName))
             {
-                Stream openFileStream = File.OpenRead(SearchObjFileName);
-                BinaryFormatter deserializer = new BinaryFormatter();
-                var lst = (List<SearchObject>)deserializer.Deserialize(openFileStream);
-                openFileStream.Close();
-                return lst;
+                Stream openFileStream = File.OpenRead(fileName);
+                if (openFileStream.Length != 0)
+                {
+                    BinaryFormatter deserializer = new BinaryFormatter();
+                    var obj = (T)deserializer.Deserialize(openFileStream);
+                    openFileStream.Close();
+                    return obj;
+                }
+            }
+
+            return default(T);
+        }
+
+        public static void SerializeObjectList<T>(string fileName, List<T> lst)
+        {
+            Stream fileStream = File.Create(fileName);
+            BinaryFormatter serializer = new BinaryFormatter();
+            serializer.Serialize(fileStream, lst);
+            fileStream.Close();
+        }
+
+        public static List<T> DeserializeObjectList<T>(string fileName)
+        {
+            if (File.Exists(fileName))
+            {
+                Stream openFileStream = File.OpenRead(fileName);
+                if (openFileStream.Length != 0)
+                {
+                    BinaryFormatter deserializer = new BinaryFormatter();
+                    var lst = (List<T>)deserializer.Deserialize(openFileStream);
+                    openFileStream.Close();
+                    return lst;
+                }
             }
 
             return null;
         }
 
-        public static List<ItemList> GetSerializedItemList()
+        public static byte[] Zip(string str)
         {
-            if (File.Exists(ItemFileName))
+            var bytes = Encoding.UTF8.GetBytes(str);
+
+            using (var msi = new MemoryStream(bytes))
+            using (var mso = new MemoryStream())
             {
-                Stream openFileStream = File.OpenRead(ItemFileName);
-                BinaryFormatter deserializer = new BinaryFormatter();
-                var lst = (List<ItemList>)deserializer.Deserialize(openFileStream);
-                openFileStream.Close();
-                return lst;
+                using (var gs = new GZipStream(mso, CompressionMode.Compress))
+                {
+                    msi.CopyTo(gs);
+                }
+
+                return mso.ToArray();
             }
-            
-            return null;
+        }
+
+        public static string Unzip(byte[] bytes)
+        {
+            if (bytes == null) return String.Empty;
+
+            using (var msi = new MemoryStream(bytes))
+            using (var mso = new MemoryStream())
+            {
+                using (var gs = new GZipStream(msi, CompressionMode.Decompress))
+                {
+                    gs.CopyTo(mso);
+                }
+
+                return Encoding.UTF8.GetString(mso.ToArray());
+            }
         }
     }
 }

@@ -12,202 +12,98 @@ namespace TradeGuru.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const int MINUTES_BETWEEN_REQUESTS = 5;
-        private const int SECONDS_BETWEEN_SEARCH_OBJECTS = 60;
-        private const int SECONDS_BETWEEN_PAGE_REQUESTS = 20;
-
-        private bool isCaptchaActivated = false;
-        private bool IsCaptchaActivated {
-            get { return isCaptchaActivated; } 
-            set 
-            {
-                isCaptchaActivated = value;
-                if (value == true)
-                {
-                    ContinueButton.Visibility = Visibility.Visible;
-                    WarningText.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    ContinueButton.Visibility = Visibility.Hidden;
-                    WarningText.Visibility = Visibility.Hidden;
-                }
-            } }
-        private Boolean AutoScroll = true;
-        private Boolean debugAutoScroll = true;
         System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
-
-        private NotificationManager NotificationManager { get; set; }
-        private SearchManager SearchManager { get; set; }
-        private HistoryManager HistoryManager { get; set; }
-        private DebugManager DebugManager { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            NotificationManager = new NotificationManager(this);
-            SearchManager = new SearchManager(ActiveSearchesPanel);
-            HistoryManager = new HistoryManager(ItemsPanel);
-            DebugManager = new DebugManager(DebugPanel);
 
-            using (var stream = Application.GetResourceStream(new Uri("pack://application:,,,/Resources/scales.ico")).Stream)
-            {
-                ni.Icon = new System.Drawing.Icon(stream);
-            }
+            SetNormalIcon();
             ni.Visible = false;
             ni.DoubleClick +=
                 delegate (object sender, EventArgs args)
                 {
-                    this.Show();
-                    this.WindowState = WindowState.Normal;
-                    ni.Visible = false;
+                    HideIcon();
                 };
 
-            StartRequest();
+            ApplicationManager.Initialize(this);
+            ApplicationManager.Begin();
         }
 
-        private async Task StartRequest()
+        public void ShowIcon()
         {
-            var searchObjects = SearchManager.serializedSearchList;
+            this.Hide();
+            ni.Visible = true;
+        }
 
-            while (true)
+        public void HideIcon()
+        {
+            this.Show();
+            this.WindowState = WindowState.Normal;
+            ni.Visible = false;
+
+            if (ApplicationManager.IsCaptchaActivated == true && MainTab.SelectedItem == BrowserTab)
             {
-                if (IsCaptchaActivated == false)
-                {
-                    foreach (var obj in searchObjects)
-                    {
-                        ItemList items = null;
-
-                        await Task.Run(async () =>
-                        {
-                            items = await Scraper.GetItems(obj.url, obj.last_seen_max_minutes, SECONDS_BETWEEN_PAGE_REQUESTS);
-                        });
-
-                        IsCaptchaActivated = DebugManager.AddRawHtml(items.rawHtml, items.queryDate, obj.pattern);
-                        if (IsCaptchaActivated == true)
-                        {
-                            NotificationManager.ShowDesktopNotification("Captcha Activated! Go to website and solve captcha to continue.");
-                            break;
-                        }
-                        else if (items.Count > 0)
-                        {
-                            HistoryManager.AddItems(items);
-                            NotificationManager.ShowDesktopNotification(items);
-                        }
-                        await Task.Delay(TimeSpan.FromSeconds(SECONDS_BETWEEN_SEARCH_OBJECTS));
-                    }
-                }
-                await Task.Delay(TimeSpan.FromMinutes(MINUTES_BETWEEN_REQUESTS));
+                ApplicationManager.IsCaptchaActivated = false;
+                SetNormalIcon();
+            }
+            else if (ApplicationManager.HasNewSalesAlert == true && MainTab.SelectedItem == HistoryTab)
+            {
+                ApplicationManager.HasNewSalesAlert = false;
+                SetNormalIcon();
             }
         }
 
+        public void SetNormalIcon()
+        {
+            ni.Icon = Helpers.GetIconFromUri(new Uri("pack://application:,,,/Resources/scales.ico"));
+        }
+
+        public void SetNotifyIcon()
+        {
+            ni.Icon = Helpers.GetIconFromUri(new Uri("pack://application:,,,/Resources/scales_notify.ico"));
+        }
+
+        public bool isBrowserTabSelected()
+        {
+            return MainTab.SelectedItem == BrowserTab;
+        }
+
+        public bool isHistoryTabSelected()
+        {
+            return MainTab.SelectedItem == HistoryTab;
+        }
 
         #region Events Handlers
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Serializer.SerializeItemList(HistoryManager.serializedHistoryList);
-            Serializer.SerializeSearchObjectList(SearchManager.serializedSearchList);
+            ApplicationManager.SaveActivity();
         }
 
         protected override void OnStateChanged(EventArgs e)
         {
             if (WindowState == System.Windows.WindowState.Minimized)
             {
-                this.Hide();
-                ni.Visible = true;
+                ShowIcon();
             }
 
             base.OnStateChanged(e);
         }
 
-        private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            if (e.ExtentHeightChange == 0)
-            {   // Content unchanged : user scroll event
-                if (itemsScrollViewer.VerticalOffset == itemsScrollViewer.ScrollableHeight)
-                {   // Scroll bar is in bottom
-                    // Set auto-scroll mode
-                    AutoScroll = true;
-                }
-                else
-                {   // Scroll bar isn't in bottom
-                    // Unset auto-scroll mode
-                    AutoScroll = false;
-                }
-            }
-
-            // Content scroll event : auto-scroll eventually
-            if (AutoScroll && e.ExtentHeightChange != 0)
-            {   // Content changed and auto-scroll mode set
-                // Autoscroll
-                itemsScrollViewer.ScrollToVerticalOffset(itemsScrollViewer.ExtentHeight);
-            }
-        }
-
-        private void DebugScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            if (e.ExtentHeightChange == 0)
-            {   // Content unchanged : user scroll event
-                if (DebugScrollViewer.VerticalOffset == DebugScrollViewer.ScrollableHeight)
-                {   // Scroll bar is in bottom
-                    // Set auto-scroll mode
-                    debugAutoScroll = true;
-                }
-                else
-                {   // Scroll bar isn't in bottom
-                    // Unset auto-scroll mode
-                    debugAutoScroll = false;
-                }
-            }
-
-            // Content scroll event : auto-scroll eventually
-            if (debugAutoScroll && e.ExtentHeightChange != 0)
-            {   // Content changed and auto-scroll mode set
-                // Autoscroll
-                DebugScrollViewer.ScrollToVerticalOffset(DebugScrollViewer.ExtentHeight);
-            }
-        }
-
-        private void AddSearchObjectButton_Click(object sender, RoutedEventArgs e)
-        {
-            Wrappers.Boolean isConfirmed = new Wrappers.Boolean(false);
-            var searchObject = new SearchObject();
-            var addSearchObjectWindow = new AddSearchObject(searchObject, isConfirmed);
-            addSearchObjectWindow.ShowDialog();
-
-            if (isConfirmed.Value)
-            {
-                searchObject.url = UrlBuilder.Build(searchObject);
-                SearchManager.AddObject(searchObject);
-            }
-        }
-
-        private void ClearHistoryButton_Click(object sender, RoutedEventArgs e)
-        {
-            ItemsPanel.Children.Clear();
-            HistoryManager.serializedHistoryList.Clear();
-        }
-
-        private void ClearDebugButton_Click(object sender, RoutedEventArgs e)
-        {
-            DebugPanel.Children.Clear();
-        }
-
-        private void BrowserTab_Selected(object sender, RoutedEventArgs e)
-        {
-            IsCaptchaActivated = false;
-            Tab_Selected(sender, e);
-        }
-
-        private void ContinueButton_Click(object sender, RoutedEventArgs e) 
-        {
-            IsCaptchaActivated = false;
-        }
-
         private void Tab_Selected(object sender, RoutedEventArgs e)
         {
             var tab = (TabItem)sender;
+            if (tab == BrowserTab)
+            {
+                ApplicationManager.IsCaptchaActivated = false;
+                SetNormalIcon();
+            }
+            else if (tab == HistoryTab)
+            {
+                ApplicationManager.HasNewSalesAlert = false;
+                SetNormalIcon();
+            }
             tab.Foreground = new SolidColorBrush(Color.FromRgb(45, 45, 48));
         }
 

@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="TradeGuru.Views.SearchUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TradeGuru.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Background="White">
+    
+    <UserControl.Resources>
+        <ResourceDictionary Source="/TradeGuru;component/Resources/Dictionary/UserControlDictionary.xaml"/>
+    </UserControl.Resources>
+
+    <DockPanel x:Name="ParentPanel">
+        <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+            <StackPanel FlowDirection="LeftToRight" DockPanel.Dock="Left">
+                <Button x:Name="AddButton" Style="{StaticResource RoundedButton}" 
+                            Margin="15, 15, 10, 10" Height="40" Width="100" 
+                            FontSize="14" Background="#64DD17" Foreground="#FF343434" 
+                            BorderBrush="#FF707070"
+                            BorderThickness="0"
+                            HorizontalAlignment="Left"
+                            Cursor="Hand"
+                            Click="AddButton_Click">
+                    <Button.Effect>
+                        <DropShadowEffect Color="#FFB4B4B4"/>
+                    </Button.Effect> Add
+                </Button>
+            </StackPanel>
+            <DockPanel FlowDirection="RightToLeft" DockPanel.Dock="Right">
+                <Button x:Name="ContinueButton" Style="{StaticResource RoundedButton}" 
+                            Margin="15, 15, 10, 10" Height="35" Width="80" 
+                            FontSize="14" Background="#F44336" Foreground="#FF343434" 
+                            BorderBrush="#FF707070"
+                            BorderThickness="0"
+                            HorizontalAlignment="Right"
+                            Cursor="Hand"
+                            Visibility="Hidden"
+                            Click="ContinueButton_Click">
+                    <Button.Effect>
+                        <DropShadowEffect Color="#FFB4B4B4"/>
+                    </Button.Effect> Continue
+                </Button>
+                <TextBlock x:Name="WarningText" VerticalAlignment="Center" Visibility="Hidden"><Bold Foreground="Red">Captcha Activated</Bold></TextBlock>
+            </DockPanel>
+        </DockPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <WrapPanel x:Name="Panel" MaxWidth="{Binding ActualWidth, ElementName=ParentSearchPanel}" >
+            </WrapPanel>
+        </ScrollViewer>
+
+    </DockPanel>
+</UserControl>

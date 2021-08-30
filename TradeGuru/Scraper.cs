@@ -10,7 +10,7 @@ namespace TradeGuru
     public static class Scraper
     {
         static ScrapingBrowser _browser = new ScrapingBrowser();
-        public static async Task<ItemList> GetItems(string url, int last_seen, int seconds)
+        public static async Task<ItemList> GetItems(string url, int last_seen, double seconds)
         {
             var count = 1;
             var lstFilteredItems = new ItemList();

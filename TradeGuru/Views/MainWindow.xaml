@@ -3,154 +3,39 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TradeGuru"
+        xmlns:local="clr-namespace:TradeGuru.Views"
         xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         mc:Ignorable="d"
+        Background="#CFD8DC"
         Title="Trade Guru" Icon="/Resources/scales.ico" Height="650" Width="1000" Closing="Window_Closing">
-
-    <Window.Resources>
-        <Style TargetType="Button" x:Key="RoundedButton">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="TextBlock.TextAlignment" Value="Center" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="btnBorder" CornerRadius="5" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" >
-                            <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" TargetName="btnBorder" Value="LawnGreen"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-
-                <!-- Animates the button's opacity on mouse over. -->
-                <EventTrigger RoutedEvent="Button.MouseEnter">
-                    <EventTrigger.Actions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation
-                                  Storyboard.TargetProperty="(Button.Opacity)"
-                                  From="1.0" To="0.9" Duration="0:0:0.2" 
-                                  RepeatBehavior="1x" />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger.Actions>
-                </EventTrigger>
-
-                <!-- Returns the button's opacity to 1 when the mouse leaves. -->
-                <EventTrigger RoutedEvent="Button.MouseLeave">
-                    <EventTrigger.Actions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation
-                                  Storyboard.TargetProperty="(Button.Opacity)"
-                                  To="1" Duration="0:0:0.2" />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger.Actions>
-                </EventTrigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
 
     <TabControl x:Name="MainTab" TabStripPlacement="Left">
         <TabItem x:Name="MonitorTab" Header="Monitor" Height="50" Background="#454548" Foreground="#E0E0E0" BorderBrush="{x:Null}"
                  Selector.Selected="Tab_Selected" Selector.Unselected="Tab_Unselected" MouseEnter="Tab_MouseEnter" MouseLeave="Tab_MouseLeave">
-            <DockPanel x:Name="ParentSearchPanel">
-                <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-                    <StackPanel FlowDirection="LeftToRight" DockPanel.Dock="Left">
-                        <Button x:Name="AddSearchObjectButton" Style="{StaticResource RoundedButton}" 
-                            Margin="15, 15, 10, 10" Height="40" Width="100" 
-                            FontSize="14" Background="#FFCBF6C0" Foreground="#FF343434" 
-                            BorderBrush="#FF707070"
-                            BorderThickness="0"
-                            HorizontalAlignment="Left"
-                            Cursor="Hand"
-                            Click="AddSearchObjectButton_Click">
-                            <Button.Effect>
-                                <DropShadowEffect Color="#FFB4B4B4"/>
-                            </Button.Effect> Add
-                        </Button>
-                    </StackPanel>
-                    <DockPanel FlowDirection="RightToLeft" DockPanel.Dock="Right">
-                        <Button x:Name="ContinueButton" Style="{StaticResource RoundedButton}" 
-                            Margin="15, 15, 10, 10" Height="35" Width="80" 
-                            FontSize="14" Background="IndianRed" Foreground="#FF343434" 
-                            BorderBrush="#FF707070"
-                            BorderThickness="0"
-                            HorizontalAlignment="Right"
-                            Cursor="Hand"
-                            Visibility="Hidden"
-                            Click="ContinueButton_Click">
-                            <Button.Effect>
-                                <DropShadowEffect Color="#FFB4B4B4"/>
-                            </Button.Effect> Continue
-                        </Button>
-                        <TextBlock x:Name="WarningText" VerticalAlignment="Center" Visibility="Hidden"><Bold Foreground="Red">Captcha Activated</Bold></TextBlock>
-                    </DockPanel>
-                </DockPanel>
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <WrapPanel x:Name="ActiveSearchesPanel" MaxWidth="{Binding ActualWidth, ElementName=ParentSearchPanel}" >
-                    </WrapPanel>
-                </ScrollViewer>
 
-            </DockPanel>
+            <local:SearchUserControl x:Name="Search"></local:SearchUserControl>
         </TabItem>
         <TabItem x:Name="HistoryTab" Header="History"  Height="50" Background="#454548" Foreground="#E0E0E0" BorderBrush="{x:Null}"
                  Selector.Selected="Tab_Selected" Selector.Unselected="Tab_Unselected" MouseEnter="Tab_MouseEnter" MouseLeave="Tab_MouseLeave">
-            <Grid>
-                <DockPanel>
-                    <DockPanel DockPanel.Dock="Top">
-                        <TextBlock Margin="20,0,10,10"><Bold Foreground="Black">Items</Bold></TextBlock>
-                        <Button x:Name="ClearHistoryButton" HorizontalAlignment="Right" Click="ClearHistoryButton_Click">Clear History</Button>
-                    </DockPanel>
-                    
 
-                    <DockPanel DockPanel.Dock="Top">
-                        <ScrollViewer x:Name="itemsScrollViewer" DockPanel.Dock="Top" Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path=Height}"
-                          VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
-                            <StackPanel x:Name="ItemsPanel" Margin="20">
-                            </StackPanel>
-                        </ScrollViewer>
-                    </DockPanel>
-
-                </DockPanel>
-            </Grid>
+            <local:HistoryUserControl x:Name="History"></local:HistoryUserControl>
         </TabItem>
         <TabItem x:Name="DebugTab" Header="Debug"  Height="50" Background="#454548" Foreground="#E0E0E0" BorderBrush="{x:Null}"
                  Selector.Selected="Tab_Selected" Selector.Unselected="Tab_Unselected" MouseEnter="Tab_MouseEnter" MouseLeave="Tab_MouseLeave">
-            <Grid>
-                <DockPanel>
-                    <DockPanel DockPanel.Dock="Top">
-                        <TextBlock Margin="20,0,10,10"><Bold></Bold></TextBlock>
-                        <Button x:Name="ClearDebugButton" HorizontalAlignment="Right" Click="ClearDebugButton_Click">Clear Log</Button>
-                    </DockPanel>
-
-
-                    <DockPanel DockPanel.Dock="Top">
-                        <ScrollViewer x:Name="DebugScrollViewer" DockPanel.Dock="Top" Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path=Height}"
-                          VerticalScrollBarVisibility="Auto" ScrollChanged="DebugScrollViewer_ScrollChanged">
-                            <StackPanel x:Name="DebugPanel" Margin="20">
-                            </StackPanel>
-                        </ScrollViewer>
-                    </DockPanel>
-
-                </DockPanel>
-            </Grid>
+            
+            <local:DebugUserControl x:Name="Debug"></local:DebugUserControl>
         </TabItem>
         <TabItem x:Name="BrowserTab" Header="Browser" Height="50" Background="#454548" Foreground="#E0E0E0" BorderBrush="{x:Null}"
-                 Selector.Selected="BrowserTab_Selected" Selector.Unselected="Tab_Unselected" MouseEnter="Tab_MouseEnter" MouseLeave="Tab_MouseLeave">
+                 Selector.Selected="Tab_Selected" Selector.Unselected="Tab_Unselected" MouseEnter="Tab_MouseEnter" MouseLeave="Tab_MouseLeave">
+            
             <Grid>
                 <wpf:ChromiumWebBrowser x:Name="Browser" Address="https://us.tamrieltradecentre.com/pc/Trade"/>
             </Grid>
         </TabItem>
         <TabItem Header="Settings"  Height="50"  Background="#454548" Foreground="#E0E0E0" BorderBrush="{x:Null}"
                  Selector.Selected="Tab_Selected" Selector.Unselected="Tab_Unselected" MouseEnter="Tab_MouseEnter" MouseLeave="Tab_MouseLeave">
+            
+            <local:SettingsUserControl></local:SettingsUserControl>
         </TabItem>
     </TabControl>
 </Window>

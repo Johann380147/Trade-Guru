@@ -1,7 +1,33 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TradeGuru.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="SAVED_SEARCH_FILENAME" Type="System.String" Scope="User">
+      <Value Profile="(Default)">../../../../Search.bin</Value>
+    </Setting>
+    <Setting Name="SAVED_HISTORY_FILENAME" Type="System.String" Scope="User">
+      <Value Profile="(Default)">../../../../History.bin</Value>
+    </Setting>
+    <Setting Name="MINUTES_BETWEEN_REQUESTS" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="SECONDS_BETWEEN_SEARCH_OBJECTS" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="SECONDS_BETWEEN_PAGE_REQUESTS" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
+    <Setting Name="SAVE_ACTIVE_SEARCHES" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="SAVE_ITEM_HISTORY" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="SAVE_DEBUG_LOG" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="SAVED_LOG_FILENAME" Type="System.String" Scope="User">
+      <Value Profile="(Default)">../../../../Log.bin</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

@@ -8,22 +8,126 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TradeGuru.Properties
-{
-
-
+namespace TradeGuru.Properties {
+    
+    
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
-    {
-
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.7.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-
-        public static Settings Default
-        {
-            get
-            {
+        
+        public static Settings Default {
+            get {
                 return defaultInstance;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("../../../../Search.bin")]
+        public string SAVED_SEARCH_FILENAME {
+            get {
+                return ((string)(this["SAVED_SEARCH_FILENAME"]));
+            }
+            set {
+                this["SAVED_SEARCH_FILENAME"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("../../../../History.bin")]
+        public string SAVED_HISTORY_FILENAME {
+            get {
+                return ((string)(this["SAVED_HISTORY_FILENAME"]));
+            }
+            set {
+                this["SAVED_HISTORY_FILENAME"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public double MINUTES_BETWEEN_REQUESTS {
+            get {
+                return ((double)(this["MINUTES_BETWEEN_REQUESTS"]));
+            }
+            set {
+                this["MINUTES_BETWEEN_REQUESTS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public double SECONDS_BETWEEN_SEARCH_OBJECTS {
+            get {
+                return ((double)(this["SECONDS_BETWEEN_SEARCH_OBJECTS"]));
+            }
+            set {
+                this["SECONDS_BETWEEN_SEARCH_OBJECTS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public double SECONDS_BETWEEN_PAGE_REQUESTS {
+            get {
+                return ((double)(this["SECONDS_BETWEEN_PAGE_REQUESTS"]));
+            }
+            set {
+                this["SECONDS_BETWEEN_PAGE_REQUESTS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SAVE_ACTIVE_SEARCHES {
+            get {
+                return ((bool)(this["SAVE_ACTIVE_SEARCHES"]));
+            }
+            set {
+                this["SAVE_ACTIVE_SEARCHES"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SAVE_ITEM_HISTORY {
+            get {
+                return ((bool)(this["SAVE_ITEM_HISTORY"]));
+            }
+            set {
+                this["SAVE_ITEM_HISTORY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SAVE_DEBUG_LOG {
+            get {
+                return ((bool)(this["SAVE_DEBUG_LOG"]));
+            }
+            set {
+                this["SAVE_DEBUG_LOG"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("../../../../Log.bin")]
+        public string SAVED_LOG_FILENAME {
+            get {
+                return ((string)(this["SAVED_LOG_FILENAME"]));
+            }
+            set {
+                this["SAVED_LOG_FILENAME"] = value;
             }
         }
     }
